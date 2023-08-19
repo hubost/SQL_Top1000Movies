@@ -5,7 +5,7 @@
 🔶Inserts available at Excel file on R column cells. <br>
 🔶Dataset downloaded from Kaggle <br> (https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows) <br> <br>  </h2> 
 
-<h2> 🟡-- Creating table <br> </h2>
+<h2> 🟡Creating table <br> </h2>
 
 CREATE TABLE IF NOT EXISTS public.imdb  <br>
 ( <br>
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS public.imdb  <br>
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/c80cc723-77c6-4f3a-9cec-4a81ad9301ae)
 
 
-<h2> 🟡-- Analysis of the gross of a movie vs directors. <br> </h2>
+<h2> 🟡 Analysis of the gross of a movie vs directors. <br> </h2>
 
 select director, avg(gross)::integer, max(gross), min(gross),sum(gross),count(gross) as movies_in_top1000 from imdb <br>
 WHERE gross is not null <br>
@@ -36,7 +36,7 @@ group by director <br>
 order by count(gross) desc <br>
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/77f2b1cc-de56-4f03-8678-399c023db7a9)
 
-<h2> 🟡-- Analysis of the gross of a movie vs different - different stars. <br> </h2>
+<h2> 🟡 Analysis of the gross of a movie vs different - different stars. <br> </h2>
 
 select series_title, avg(gross)::integer as avg_gross, max(gross) as max_gross, <br>
 min(gross) as min_gross, sum(gross) as total_gross,  actor <br>
@@ -57,7 +57,7 @@ from ( <br>
 
 
 
-<h2> 🟡-- Analysis of the No_of_votes of a movie vs directors. <br></h2>
+<h2> 🟡 Analysis of the No_of_votes of a movie vs directors. <br></h2>
 
 select director, avg(no_of_votes)::integer as average_no_of_votes, max(no_of_votes),min(no_of_votes), sum(no_of_votes), count(no_of_votes) as movies_count from imdb <br> 
 where director is not null and director not ilike '' <br>
@@ -67,7 +67,7 @@ group by director <br>
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/4863f8bb-b285-4093-869e-c2aa2a1fdb80)
 
 
-<h2> 🟡-- Analysis of the No_of_votes of a movie vs different - different stars. <br></h2>
+<h2> 🟡 Analysis of the No_of_votes of a movie vs different - different stars. <br></h2>
 
 select actor, avg(no_of_votes)::integer as avg_votes, max(no_of_votes) as max_votes, <br>
 min(no_of_votes) as min_votes, sum(no_of_votes) as total_votes, count(no_of_votes) as movies <br>
@@ -85,7 +85,7 @@ from ( select series_title, no_of_votes, star1 as actor from imdb <br>
     
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/89113f16-fddc-4011-a272-3d3c5bfd4f1f)
 
-<h2> 🟡-- Which actor prefer which Genre more? <br></h2>
+<h2> 🟡 Which actor prefer which Genre more? <br></h2>
 
 select actor,genre as favorite_genre from<br>
     (<br>
@@ -104,7 +104,7 @@ select actor,genre as favorite_genre from<br>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/8daf6009-75dd-4d4b-ad91-e6e781d4e5ed)
 
-<h2> 🟡-- Which combination of actors are getting good IMDB_Rating maximum time?<br></h2>
+<h2> 🟡 Which combination of actors are getting good IMDB_Rating maximum time?<br></h2>
 
 select star1,star2,star3,star4, imdb_rating from imdb<br>
 where '' not in (star1,star2,star3,star4)<br>
@@ -113,7 +113,7 @@ order by imdb_rating desc limit 10 <br>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/642454d1-bfd3-405a-acc7-b292ecb3a9b2)
 
-<h2> 🟡-- Which combination of actors are getting good gross?<br></h2>
+<h2> 🟡 Which combination of actors are getting good gross?<br></h2>
 
 select CONCAT(star1,' ',star2,' ',star3,' ',star4), gross from imdb<br>
 where ''not in (star1, star2, star3, star4)<br>
@@ -123,7 +123,7 @@ limit 10<br>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/0b5fd38a-6610-45a7-9ba2-ffbb8e5d89d3)
 
-<h2> 🟡-- Which genres are making best gross for directors? <br></h2>
+<h2> 🟡 Which genres are making best gross for directors? <br></h2>
 
 select distinct director, genre, max(gross) as highest_gross from imdb<br>
 where gross is not null<br>
@@ -134,7 +134,7 @@ order by max(gross) desc<br>
 
 
 
-<h2> 🟡-- Analysis of movie runtime over the years <br></h2>
+<h2> 🟡 Analysis of movie runtime over the years <br></h2>
 
 select '1930-1950'as years,avg(runtime_in_mins)::integer as runtime_mins_avg from imdb <br>
     where released_year between 1930 and 1950<br>
@@ -154,7 +154,7 @@ select '1930-1950'as years,avg(runtime_in_mins)::integer as runtime_mins_avg fro
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/e6427ab1-253d-455d-8676-3488a838576f)
 
-<h2> 🟡-- Analysis of average gross over the years <br></h2>
+<h2> 🟡 Analysis of average gross over the years <br></h2>
 
 SELECT released_year,sum(gross) as sum_gross,avg(gross)::integer as avg_gross, count(series_title) as total_movies from imdb<br>
 where gross is not null and released_year is not null<br>
