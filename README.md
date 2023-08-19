@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS public.imdb  <br>
     no_of_votes integer, <br>
     gross integer  <br>
     ); 
-![image](https://github.com/hubost/SQL/assets/103451733/c21e4cf2-7456-4219-99a8-3bce03e08b05)
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/c80cc723-77c6-4f3a-9cec-4a81ad9301ae)
 
 
 <h2> 🟡-- Analysis of the gross of a movie vs directors. <br> </h2>
@@ -34,10 +34,7 @@ select director, avg(gross)::integer, max(gross), min(gross),sum(gross),count(gr
 WHERE gross is not null <br>
 group by director <br>
 order by count(gross) desc <br>
-![image](https://github.com/hubost/SQL/assets/103451733/f57dda0b-cf8e-4d63-a06f-98a3ced94b62)
-
-
-
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/77f2b1cc-de56-4f03-8678-399c023db7a9)
 
 <h2> 🟡-- Analysis of the gross of a movie vs different - different stars. <br> </h2>
 
@@ -56,7 +53,8 @@ from ( <br>
      group by actor, series_title <br>
      having avg(gross) is not null<br>
      order by avg(gross) desc<br>
-  ![image](https://github.com/hubost/SQL/assets/103451733/7182a05d-d234-41df-968e-44f9aeff07f9)
+  ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/386cfc42-d4f2-4108-9e62-fe7bf6d69792)
+
 
 
 <h2> 🟡-- Analysis of the No_of_votes of a movie vs directors. <br></h2>
@@ -66,8 +64,7 @@ where director is not null and director not ilike '' <br>
 and no_of_votes is not null <br>
 group by director <br>
  
-![image](https://github.com/hubost/SQL/assets/103451733/d7cdc918-c769-45db-b8c5-1cc319889718)
-
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/4863f8bb-b285-4093-869e-c2aa2a1fdb80)
 
 
 <h2> 🟡-- Analysis of the No_of_votes of a movie vs different - different stars. <br></h2>
@@ -86,7 +83,7 @@ from ( select series_title, no_of_votes, star1 as actor from imdb <br>
      group by actor<br>
      order by total_votes desc<br>
     
-![image](https://github.com/hubost/SQL/assets/103451733/abe68b15-7f92-4e5a-a117-b9c4a010d169)
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/89113f16-fddc-4011-a272-3d3c5bfd4f1f)
 
 <h2> 🟡-- Which actor prefer which Genre more? <br></h2>
 
@@ -105,17 +102,16 @@ select actor,genre as favorite_genre from<br>
         GROUP BY star4, genre ) as actors<br>
         where rn=1;<br>
 
-![image](https://github.com/hubost/SQL/assets/103451733/b04f7297-474a-4f56-93fa-06e0f0f12f4e)
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/8daf6009-75dd-4d4b-ad91-e6e781d4e5ed)
 
 <h2> 🟡-- Which combination of actors are getting good IMDB_Rating maximum time?<br></h2>
 
-select star1,star2,star3,star4, sum(imdb_rating) as suma_ocen from imdb<br>
+select star1,star2,star3,star4, imdb_rating from imdb<br>
 where '' not in (star1,star2,star3,star4)<br>
-group by star1,star2,star3,star4<br>
-order by suma_ocen desc limit 10 <br>
+group by star1,star2,star3,star4, imdb_rating<br>
+order by imdb_rating desc limit 10 <br>
 
-![image](https://github.com/hubost/SQL/assets/103451733/c2b27b95-d4fe-4448-bb78-494481530087)
-
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/642454d1-bfd3-405a-acc7-b292ecb3a9b2)
 
 <h2> 🟡-- Which combination of actors are getting good gross?<br></h2>
 
@@ -125,8 +121,7 @@ and gross is not null <br>
 order by gross desc<br>
 limit 10<br>
 
-![image](https://github.com/hubost/SQL/assets/103451733/39d86d76-2a36-453c-9c71-5ef611131a23)
-
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/0b5fd38a-6610-45a7-9ba2-ffbb8e5d89d3)
 
 <h2> 🟡-- Which genres are making best gross for directors? <br></h2>
 
@@ -135,7 +130,8 @@ where gross is not null<br>
 group by gross, director, genre<br>
 order by max(gross) desc<br>
 
-![image](https://github.com/hubost/SQL/assets/103451733/2b980cfb-9ecf-4cf6-ab91-2974c981f195)
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/37d1be05-d805-46a4-a8ec-bef3d948f7a3)
+
 
 
 <h2> 🟡-- Analysis of movie runtime over the years <br></h2>
@@ -156,8 +152,7 @@ select '1930-1950'as years,avg(runtime_in_mins)::integer as runtime_mins_avg fro
     where released_year between 2011 and 2020<br>
     order by years<br>
 
-![image](https://github.com/hubost/SQL/assets/103451733/a0aa04ef-4f20-48c8-8a82-8dca0ccae1cf)
-
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/e6427ab1-253d-455d-8676-3488a838576f)
 
 <h2> 🟡-- Analysis of average gross over the years <br></h2>
 
@@ -166,5 +161,6 @@ where gross is not null and released_year is not null<br>
 group by released_year<br>
 order by released_year desc<br>
 
-![image](https://github.com/hubost/SQL/assets/103451733/b4b1608c-11fc-4652-b992-4cfbaa1d6eb1)
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/304b8c06-40d0-422b-b019-cc8e7ce662bc)
+
 
