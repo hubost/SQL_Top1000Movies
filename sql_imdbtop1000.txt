@@ -1,0 +1,140 @@
+-- Analysis made in SQL code.
+
+CREATE TABLE IF NOT EXISTS public.imdb
+(
+	id serial not null,
+    series_title text  ,
+    released_year integer,
+    certificate text  ,
+    runtime_in_mins numeric  , 
+    genre text  ,
+    imdb_rating numeric,
+    overview text   ,
+    meta_score integer,
+    director text   ,
+    star1 text  ,
+    star2 text  ,
+    star3 text   ,
+    star4 text  ,
+    no_of_votes integer,
+    gross integer   
+    );
+
+INSERT INTO imdb(Series_Title,Released_Year,Certificate,Runtime,Genre,IMDB_Rating,Overview,Meta_score,Director,Star1,Star2,Star3,Star4,No_of_Votes,Gross) 
+VALUES ('Amarcord',1973,'R','123','Comedy, Drama, Family',7.9,'A series of comedic and nostalgic vignettes set in a 1930s Italian coastal town.',null,'Federico Fellini','Magali NoĂ«l','Bruno Zanin','Pupella Maggio','Armando Brancia',39897,null);
+ 
+
+
+-- Analysis of the gross of a movie vs directors.
+
+select director, avg(gross)::integer, max(gross), min(gross),sum(gross),count(gross) as movies_in_top1000 from imdb
+WHERE gross is not null 
+group by director
+order by count(gross) desc
+
+-- Analysis of the gross of a movie vs different - different stars.
+
+select series_title, avg(gross)::integer as avg_gross, max(gross) as max_gross, 
+min(gross) as min_gross, sum(gross) as total_gross,  actor
+from (
+        select series_title, gross, star1 as actor from imdb
+        union all 
+        select series_title, gross, star2 as actor from imdb
+        union all
+        select series_title, gross, star3 as actor from imdb
+        union all
+        select series_title, gross, star4 as actor from imdb
+    ) actors
+     where actor ilike '%leonardo%'
+     group by actor, series_title
+     having avg(gross) is not null
+     order by avg(gross) desc
+
+-- Analysis of the No_of_votes of a movie vs directors.
+
+select director, avg(no_of_votes)::integer as average_no_of_votes, max(no_of_votes),min(no_of_votes), sum(no_of_votes), count(no_of_votes) as movies_count from imdb 
+where director is not null and director not ilike ''
+and no_of_votes is not null
+group by director
+order by director
+
+-- Analysis of the No_of_votes of a movie vs different - different stars.
+
+select actor, avg(no_of_votes)::integer as avg_votes, max(no_of_votes) as max_votes,
+min(no_of_votes) as min_votes, sum(no_of_votes) as total_votes, count(no_of_votes) as movies
+from ( select series_title, no_of_votes, star1 as actor from imdb
+        union all
+        select series_title, no_of_votes, star2 as actor from imdb
+        union all 
+        select series_title, no_of_votes, star3 as actor from imdb
+        union all 
+        select series_title, no_of_votes, star4 as actor from imdb
+     ) actors
+     where actor is not null and actor not ilike ''
+     group by actor
+     order by total_votes desc
+
+-- Which actor prefer which Genre more?
+
+select actor,genre as favorite_genre from
+    (
+        select star1 AS actor, genre, ROW_NUMBER() OVER (PARTITION BY star1 ORDER BY COUNT(*) DESC) AS rn FROM imdb
+        GROUP BY star1, genre   
+        UNION 
+        select star2 AS actor, genre, ROW_NUMBER() OVER (PARTITION BY star2 ORDER BY COUNT(*) DESC) AS rn FROM imdb
+        GROUP BY star2, genre 
+        UNION 
+        select star3 AS actor, genre, ROW_NUMBER() OVER (PARTITION BY star3 ORDER BY COUNT(*) DESC) AS rn FROM imdb
+        GROUP BY star3, genre 
+        UNION 
+        select star4 AS actor, genre, ROW_NUMBER() OVER (PARTITION BY star4 ORDER BY COUNT(*) DESC) AS rn FROM imdb
+        GROUP BY star4, genre ) as actors
+        where rn=1;
+
+-- Which combination of actors are getting good IMDB_Rating maximum time?
+
+select star1,star2,star3,star4, sum(imdb_rating) as suma_ocen from imdb
+group by star1,star2,star3,star4
+order by suma_ocen desc
+
+-- Which combination of actors are getting good gross?
+
+select CONCAT(star1,' ',star2,' ',star3,' ',star4), gross from imdb
+where ''not in (star1, star2, star3, star4)
+and gross is not null 
+order by gross desc
+limit 5
+
+-- Which genres are making best gross for directors?
+
+select distinct director, genre, max(gross) as highest_gross from imdb
+where gross is not null
+group by gross, director, genre
+order by max(gross) desc
+
+-- Analysis of movie runtime over the years
+
+select '1930-1950'as years,avg(runtime_in_mins)::integer as runtime_mins_avg from imdb 
+    where released_year between 1930 and 1950
+    UNION
+    select '1951-1970'as years,avg(runtime_in_mins)::integer as runtime_mins_avg from imdb 
+    where released_year between 1951 and 1970
+    UNION
+    select '1971-1990'as years,avg(runtime_in_mins)::integer as runtime_mins_avg from imdb 
+    where released_year between 1971 and 1990
+    UNION
+    select '1991-2010'as years,avg(runtime_in_mins)::integer as runtime_mins_avg from imdb 
+    where released_year between 1991 and 2010
+    UNION
+    select '2011-2020'as years,avg(runtime_in_mins)::integer as runtime_mins_avg from imdb 
+    where released_year between 2011 and 2020
+    order by years
+
+-- Analysis of average gross over the years
+
+SELECT released_year,sum(gross) as sum_gross,avg(gross)::integer as avg_gross, count(series_title) as total_movies from imdb
+where gross is not null and released_year is not null
+group by released_year
+order by released_year desc
+ 
+ 
