@@ -1,0 +1,59 @@
+--film dla ciebie
+create or replace function film_dla_ciebie(
+		wanted_genre text,  min_year integer,
+		max_year integer, pref_actor text, opt_keywords text)
+	returns table (
+		series_title2 text, genre2 text, released_year2 integer, overview2 text, actors text
+	)
+	language plpgsql
+	as
+$$
+	begin		
+		return query
+		select series_title,genre, released_year, overview, 
+		concat(star1,'',star2,'',star3,'',star4) from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND 
+		(pref_actor IN (star1,star2,star3,star4) AND pref_actor NOT ILIKE ''
+			 OR released_year between min_year and max_year
+			 OR opt_keywords ILIKE CONCAT('%',overview,'%'));
+end
+$$
+
+select * from film_dla_ciebie('Drama',1930,1999,'','')
+
+================================================================
+
+--search by director or actor 
+create or replace function search_by_dir_or_actor(director_s text, actor text)
+returns table (searched_movie text, searched_dir text, actors text)
+language plpgsql as
+$$
+	begin
+		return query
+		select series_title, director, concat(star1,' ',star2,' ',star3,' ',star4) from imdb
+		where NULLIF(director_s,'') ilike CONCAT('%',director,'%') 
+		and director is not null
+		or
+		actor in (star1,star2,star3,star4) and actor not ilike '';
+	end
+$$
+
+select * from search_by_dir_or_actor('','Al Pacino')
+select * from search_by_dir_or_actor('Kurosawa','')
+=================================================================
+--Wyszukaj dochód filmu
+
+Create or replace function get_movie_gross(searched_movie text)
+returns int
+language plpgsql
+as $$
+	Declare movie_gross integer;
+	Begin
+		select gross into movie_gross from imdb
+		where series_title ilike searched_movie;
+		return movie_gross;
+		end;
+$$
+
+select get_movie_gross('Inception')
