@@ -169,19 +169,29 @@ order by released_year desc<br>
 <h3>Search by actor<h3>
 <h2>select * from search_by_dir_or_actor('','Al Pacino')</h2>
 
-create or replace function search_by_dir_or_actor(director_s text, actor text)
-returns table (searched_movie text, searched_dir text, actors text)
-language plpgsql as
-$$
-	begin
-		return query
-		select series_title, director, concat(star1,' ',star2,' ',star3,' ',star4) from imdb
-		where NULLIF(director_s,'') ilike CONCAT('%',director,'%') 
-		and director is not null
-		or
-		actor in (star1,star2,star3,star4) and actor not ilike '';
-	end
-$$
+CREATE OR REPLACE FUNCTION search_by_dir_or_actor(director_s text, actor text) <br>
+RETURNS TABLE (searched_movie text, searched_dir text, actors text) <br>
+LANGUAGE plpgsql AS $$ <br>
+BEGIN <br>
+    IF (director_s != '') THEN <br>
+        RETURN QUERY <br>
+            SELECT series_title, director, CONCAT(star1,' ',star2,' ',star3,' ',star4) <br>
+            FROM imdb <br>
+            WHERE director ILIKE CONCAT('%', director_s, '%'); <br>
+    ELSIF(actor != '') THEN <br>
+        RETURN QUERY <br>
+            SELECT series_title, director, CONCAT(star1,' ',star2,' ',star3,' ',star4) <br>
+            FROM imdb <br>
+            WHERE actor IN (star1, star2, star3, star4) AND actor NOT ILIKE ''; <br>
+    ELSE <br>
+        RETURN QUERY <br>
+            SELECT series_title, director, CONCAT(star1,' ',star2,' ',star3,' ',star4) <br>
+            FROM imdb <br>
+            WHERE director ILIKE CONCAT('%', director_s, '%') <br>
+            AND actor IN (star1, star2, star3, star4) AND actor NOT ILIKE ''; <br>
+    END IF; <br>
+END; <br>
+$$; <br>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/35ecec3c-28ec-4d7c-9385-0f73a6c4f14b)
 
@@ -194,16 +204,16 @@ $$
 <h3>Get movie gross<h3>
 <h2>select get_movie_gross('Inception')</h2>
 
-Create or replace function get_movie_gross(searched_movie text)
-returns int
-language plpgsql
-as $$
-	Declare movie_gross integer;
-	Begin
-		select gross into movie_gross from imdb
-		where series_title ilike searched_movie;
-		return movie_gross;
-		end;
-$$
+Create or replace function get_movie_gross(searched_movie text) <br>
+returns int <br>
+language plpgsql <br>
+as $$ <br>
+	Declare movie_gross integer; <br>
+	Begin <br>
+		select gross into movie_gross from imdb <br>
+		where series_title ilike searched_movie; <br>
+		return movie_gross; <br>
+		end; <br>
+$$ <br>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/36837540-43cf-41c9-9563-30fa809b794d)
