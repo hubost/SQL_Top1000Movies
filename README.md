@@ -1,6 +1,6 @@
-<h1>Analysis of IMDB Top 1000 Movies Dataset</h1>
+<h1>Queries and functions of IMDB Top 1000 Movies Dataset</h1>
 <h2> 
-🔶Analysis made in SQL code in PostgreSQL RDBMS. <br>
+🔶Queries and functions made in SQL code in PostgreSQL RDBMS. <br>
 🔶Imported from excel using CONCATENATE <br>
 🔶Inserts available at Excel file on R column cells. <br>
 🔶Dataset downloaded from Kaggle <br> (https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows) <br> <br>  </h2> 
@@ -164,3 +164,46 @@ order by released_year desc<br>
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/304b8c06-40d0-422b-b019-cc8e7ce662bc)
 
 
+<h1> ▶️ Functions <br></h1>
+
+<h3>Search by actor<h3>
+<h2>select * from search_by_dir_or_actor('','Al Pacino')</h2>
+
+create or replace function search_by_dir_or_actor(director_s text, actor text)
+returns table (searched_movie text, searched_dir text, actors text)
+language plpgsql as
+$$
+	begin
+		return query
+		select series_title, director, concat(star1,' ',star2,' ',star3,' ',star4) from imdb
+		where NULLIF(director_s,'') ilike CONCAT('%',director,'%') 
+		and director is not null
+		or
+		actor in (star1,star2,star3,star4) and actor not ilike '';
+	end
+$$
+
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/35ecec3c-28ec-4d7c-9385-0f73a6c4f14b)
+
+<h3>Search by director<h3>
+<h2>select * from search_by_dir_or_actor('Tarantino','')</h2>
+
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/666450a0-f056-43fd-9d1e-917cc0769fda)
+
+
+<h3>Get movie gross<h3>
+<h2>select get_movie_gross('Inception')</h2>
+
+Create or replace function get_movie_gross(searched_movie text)
+returns int
+language plpgsql
+as $$
+	Declare movie_gross integer;
+	Begin
+		select gross into movie_gross from imdb
+		where series_title ilike searched_movie;
+		return movie_gross;
+		end;
+$$
+
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/36837540-43cf-41c9-9563-30fa809b794d)
