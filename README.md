@@ -166,8 +166,8 @@ order by released_year desc<br>
 
 <h1> ▶️ Functions <br></h1>
 
-<h3>Search by actor<h3>
-<h2>select * from search_by_dir_or_actor('','Al Pacino')</h2>
+<h2>Search by actor<h2>
+<h3>select * from search_by_dir_or_actor('','Al Pacino')</h3>
 
 CREATE OR REPLACE FUNCTION search_by_dir_or_actor(director_s text, actor text) <br>
 RETURNS TABLE (searched_movie text, searched_dir text, actors text) <br>
@@ -195,14 +195,14 @@ $$; <br>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/35ecec3c-28ec-4d7c-9385-0f73a6c4f14b)
 
-<h3>Search by director<h3>
-<h2>select * from search_by_dir_or_actor('Tarantino','')</h2>
+<h2>Search by director<h2>
+<h3>select * from search_by_dir_or_actor('Tarantino','')</h3>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/666450a0-f056-43fd-9d1e-917cc0769fda)
 
 
-<h3>Get movie gross<h3>
-<h2>select get_movie_gross('Inception')</h2>
+<h2>Get movie gross<h2>
+<h3>select get_movie_gross('Inception')</h3>
 
 Create or replace function get_movie_gross(searched_movie text) <br>
 returns int <br>
