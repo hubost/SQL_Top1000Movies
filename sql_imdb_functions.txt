@@ -1,29 +1,3 @@
---film dla ciebie
-create or replace function film_dla_ciebie(
-		wanted_genre text,  min_year integer,
-		max_year integer, pref_actor text, opt_keywords text)
-	returns table (
-		series_title2 text, genre2 text, released_year2 integer, overview2 text, actors text
-	)
-	language plpgsql
-	as
-$$
-	begin		
-		return query
-		select series_title,genre, released_year, overview, 
-		concat(star1,'',star2,'',star3,'',star4) from imdb
-		where genre ILIKE CONCAT('%',wanted_genre,'%')
-		AND 
-		(pref_actor IN (star1,star2,star3,star4) AND pref_actor NOT ILIKE ''
-			 OR released_year between min_year and max_year
-			 OR opt_keywords ILIKE CONCAT('%',overview,'%'));
-end
-$$
-
-select * from film_dla_ciebie('Drama',1930,1999,'','')
-
-================================================================
-
 --search by director or actor 
 create or replace function search_by_dir_or_actor(director_s text, actor text)
 returns table (searched_movie text, searched_dir text, actors text)
@@ -57,3 +31,38 @@ as $$
 $$
 
 select get_movie_gross('Inception')
+
+============================================================================
+
+
+poprawka_edit
+
+
+
+CREATE OR REPLACE FUNCTION search_by_dir_or_actor(director_s text, actor text)
+RETURNS TABLE (searched_movie text, searched_dir text, actors text)
+LANGUAGE plpgsql AS $$
+BEGIN
+    IF (director_s != '') THEN
+        RETURN QUERY
+            SELECT series_title, director, CONCAT(star1,' ',star2,' ',star3,' ',star4)
+            FROM imdb
+            WHERE director ILIKE CONCAT('%', director_s, '%');
+    ELSIF(actor != '') THEN
+        RETURN QUERY
+            SELECT series_title, director, CONCAT(star1,' ',star2,' ',star3,' ',star4)
+            FROM imdb
+            WHERE actor IN (star1, star2, star3, star4) AND actor NOT ILIKE '';
+    ELSE
+        RETURN QUERY
+            SELECT series_title, director, CONCAT(star1,' ',star2,' ',star3,' ',star4)
+            FROM imdb
+            WHERE director ILIKE CONCAT('%', director_s, '%')
+            AND actor IN (star1, star2, star3, star4) AND actor NOT ILIKE '';
+    END IF;
+END;
+$$;
+
+select * from search_by_dir_or_actor('','Al Pacino')
+
+select * from search_by_dir_or_actor('Kurosawa','')
