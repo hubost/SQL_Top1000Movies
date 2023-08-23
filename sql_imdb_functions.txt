@@ -1,21 +1,3 @@
---search by director or actor 
-create or replace function search_by_dir_or_actor(director_s text, actor text)
-returns table (searched_movie text, searched_dir text, actors text)
-language plpgsql as
-$$
-	begin
-		return query
-		select series_title, director, concat(star1,' ',star2,' ',star3,' ',star4) from imdb
-		where NULLIF(director_s,'') ilike CONCAT('%',director,'%') 
-		and director is not null
-		or
-		actor in (star1,star2,star3,star4) and actor not ilike '';
-	end
-$$
-
-select * from search_by_dir_or_actor('','Al Pacino')
-select * from search_by_dir_or_actor('Kurosawa','')
-=================================================================
 --Wyszukaj dochód filmu
 
 Create or replace function get_movie_gross(searched_movie text)
@@ -33,11 +15,7 @@ $$
 select get_movie_gross('Inception')
 
 ============================================================================
-
-
-poprawka_edit
-
-
+--wyszukaj filmy aktora lub reżysera
 
 CREATE OR REPLACE FUNCTION search_by_dir_or_actor(director_s text, actor text)
 RETURNS TABLE (searched_movie text, searched_dir text, actors text)
@@ -64,5 +42,70 @@ END;
 $$;
 
 select * from search_by_dir_or_actor('','Al Pacino')
-
 select * from search_by_dir_or_actor('Kurosawa','')
+
+=========================================================================
+--wyszukaj film dla siebie
+	
+create or replace function film_dla_ciebie(
+		wanted_genre text,  min_year integer,
+		max_year integer, pref_actor text, opt_keywords text)
+	returns table (
+		title text, found_genre text, year_of_release integer, actors text, overviewTotal text
+	)
+	language plpgsql
+	as
+$$
+	begin
+		IF wanted_genre not ilike ''
+		and min_year is null 
+		AND max_year is null
+		AND pref_actor ilike ''
+		AND opt_keywords ilike '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		order by series_title;
+		
+		ELSIF pref_actor NOT ILIKE '' AND wanted_genre NOT ILIKE '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND pref_actor IN (star1,star2,star3,star4) AND pref_actor NOT ILIKE ''
+		order by series_title;
+		
+		ELSIF min_year is not null AND max_year is not null AND wanted_genre NOT ILIKE '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND released_year between min_year and max_year
+		order by series_title;
+		
+		ELSIF opt_keywords not ilike '' AND wanted_genre NOT ILIKE '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND overview ILIKE (CONCAT('%',opt_keywords,'%'))
+		order by series_title;
+		
+		ELSE 
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,'',star2,'',star3,'',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND opt_keywords IN (CONCAT('%',overview,'%'))
+		AND released_year between min_year and max_year
+		order by series_title;
+		end if;
+end;
+$$
+
+select * from film_dla_ciebie('Drama',null,null,'','')
+select * from film_dla_ciebie('Drama',1990,1999,'','')
+select * from film_dla_ciebie('Drama',null,null,'Al Pacino','')
+select * from film_dla_ciebie('Drama',null,null,'','New York')
+select * from film_dla_ciebie('',null,null,'','New York')
