@@ -217,3 +217,81 @@ as $$ <br>
 $$ <br>
 
 ![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/36837540-43cf-41c9-9563-30fa809b794d)
+
+<h2>Return a movie filtered by genre, actor, year of made or keyword.</h2>
+<h3>select * from film_dla_ciebie('Drama',1970,1999,'Al Pacino','New York')</h3><br>
+
+![image](https://github.com/hubost/SQL_Top1000Movies/assets/103451733/4bdbcb89-3ac3-473b-97fc-c3a73d773241)
+
+create or replace function film_dla_ciebie(<br>
+		wanted_genre text,  min_year integer,<br>
+		max_year integer, pref_actor text, opt_keywords text)<br>
+	returns table (<br>
+		title text, found_genre text, year_of_release integer, actors text, overviewTotal text<br>
+	)<br>
+	language plpgsql<br>
+	as<br>
+$$<br>
+	begin<br>
+		IF wanted_genre not ilike ''<br>
+		AND min_year is not null <br>
+		AND max_year is not null<br>
+		AND pref_actor not ilike ''<br>
+		AND opt_keywords not ilike '' then <br>
+		return query<br>
+		select series_title,genre, released_year,	<br>
+		concat(star1,'',star2,'',star3,'',star4), overview from imdb<br>
+		where genre ILIKE CONCAT('%',wanted_genre,'%')<br>
+		AND released_year between min_year and max_year<br>
+		AND overview ILIKE (CONCAT('%',opt_keywords,'%'))<br>
+		AND pref_actor IN (star1,star2,star3,star4)<br>
+		order by series_title;<br>
+		
+		ELSIF wanted_genre not ilike ''
+		AND min_year is null 
+		AND max_year is null
+		AND pref_actor ilike ''
+		AND opt_keywords ilike '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		order by series_title;
+		
+		ELSIF pref_actor NOT ILIKE '' AND wanted_genre NOT ILIKE '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND pref_actor IN (star1,star2,star3,star4) AND pref_actor NOT ILIKE ''
+		order by series_title;
+		
+		ELSIF min_year is not null AND max_year is not null AND wanted_genre NOT ILIKE '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND released_year between min_year and max_year
+		order by series_title;
+		
+		ELSIF opt_keywords not ilike '' AND wanted_genre NOT ILIKE '' then
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,' ',star2,' ',star3,' ',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND overview ILIKE (CONCAT('%',opt_keywords,'%'))
+		order by series_title;
+		
+		ELSE 
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,'',star2,'',star3,'',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND opt_keywords IN (CONCAT('%',overview,'%'))
+		AND released_year between min_year and max_year
+		order by series_title;
+		end if;<br>
+end;<br>
+$$<br>
+
+
