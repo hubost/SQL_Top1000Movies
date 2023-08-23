@@ -58,7 +58,21 @@ create or replace function film_dla_ciebie(
 $$
 	begin
 		IF wanted_genre not ilike ''
-		and min_year is null 
+		AND min_year is not null 
+		AND max_year is not null
+		AND pref_actor not ilike ''
+		AND opt_keywords not ilike '' then 
+		return query
+		select series_title,genre, released_year,	
+		concat(star1,'',star2,'',star3,'',star4), overview from imdb
+		where genre ILIKE CONCAT('%',wanted_genre,'%')
+		AND released_year between min_year and max_year
+		AND overview ILIKE (CONCAT('%',opt_keywords,'%'))
+		AND pref_actor IN (star1,star2,star3,star4)
+		order by series_title;
+		
+		ELSIF wanted_genre not ilike ''
+		AND min_year is null 
 		AND max_year is null
 		AND pref_actor ilike ''
 		AND opt_keywords ilike '' then
@@ -91,21 +105,14 @@ $$
 		where genre ILIKE CONCAT('%',wanted_genre,'%')
 		AND overview ILIKE (CONCAT('%',opt_keywords,'%'))
 		order by series_title;
-		
-		ELSE 
-		return query
-		select series_title,genre, released_year,	
-		concat(star1,'',star2,'',star3,'',star4), overview from imdb
-		where genre ILIKE CONCAT('%',wanted_genre,'%')
-		AND opt_keywords IN (CONCAT('%',overview,'%'))
-		AND released_year between min_year and max_year
-		order by series_title;
+	
 		end if;
 end;
 $$
 
 select * from film_dla_ciebie('Drama',null,null,'','')
 select * from film_dla_ciebie('Drama',1990,1999,'','')
+select * from film_dla_ciebie('Drama',1970,1999,'Al Pacino','New York')
 select * from film_dla_ciebie('Drama',null,null,'Al Pacino','')
 select * from film_dla_ciebie('Drama',null,null,'','New York')
 select * from film_dla_ciebie('',null,null,'','New York')
